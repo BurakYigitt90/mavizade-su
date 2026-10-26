@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavizade Su - Sipariş Ver</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Kurulum için Manifest Ayarı -->
+    <link rel="manifest" href="data:application/json;charset=utf-8,{
+        %22name%22: %22Mavizade Su Sipariş%22,
+        %22short_name%22: %22Mavizade%22,
+        %22start_url%22: %22.%22,
+        %22display%22: %22standalone%22,
+        %22background_color%22: %22%23eff6ff%22,
+        %22theme_color%22: %22%232563eb%22,
+        %22icons%22: [{
+            %22src%22: %22https://cdn-icons-png.flaticon.com/512/3105/3105807.png%22,
+            %22sizes%22: %22512x512%22,
+            %22type%22: %22image/png%22
+        }]
+    }">
+    <meta name="theme-color" content="#2563eb">
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col justify-between">
+
+    <!-- Üst Başlık -->
+    <header class="bg-blue-600 text-white p-4 shadow-md text-center relative">
+        <h1 class="text-xl font-bold"><i class="fa-solid fa-droplet mr-2"></i>Mavizade Su</h1>
+        <p class="text-xs text-blue-100">Hızlı ve Güvenilir Damacana & Su Siparişi</p>
+        
+        <!-- Telefona Yükle Butonu (Başlangıçta gizli, tarayıcı destekleyince açılır) -->
+        <button id="installBtn" class="hidden absolute right-3 top-4 bg-white text-blue-600 text-xs font-bold px-2.5 py-1.5 rounded-lg shadow flex items-center space-x-1">
+            <i class="fa-solid fa-download"></i>
+            <span>Yükle</span>
+        </button>
+    </header>
+
+    <!-- Ana İçerik -->
+    <main class="p-4 max-w-md mx-auto w-full flex-grow">
+        
+        <!-- Sipariş Formu Kartı -->
+        <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Hemen Sipariş Ver</h2>
+            
+            <form id="orderForm" class="space-y-4">
+                <!-- Telefon Numarası -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Telefon Numarası</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-phone"></i></span>
+                        <input type="tel" id="phone" required placeholder="0532 XXX XX XX" 
+                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                    </div>
+                    <p class="text-[10px] text-blue-600 mt-1">Numaranızı yazdığınızda daha önceki bilgileriniz otomatik gelir.</p>
+                </div>
+
+                <!-- Ad Soyad -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Ad Soyad</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="name" required placeholder="Adınız Soyadınız" 
+                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- Adres -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Teslimat Adresi (Uğurmumcu / Kartal vb.)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-location-dot"></i></span>
+                        <textarea id="address" required rows="2" placeholder="Mahalle, Cadde, Sokak, Bina No, Daire..." 
+                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"></textarea>
+                    </div>
+                </div>
+
+                <!-- Ürün Seçimi -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Ürün</label>
+                        <select id="product" class="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            <option value="19L Damacana Su">19L Damacana</option>
+                            <option value="5L Su">5L Pet Su</option>
+                            <option value="1.5L / Koli Su">1.5L Koli Su</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Adet</label>
+                        <input type="number" id="quantity" value="1" min="1" max="10" 
+                            class="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-center">
+                    </div>
+                </div>
+
+                <!-- Sipariş Notu -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sipariş Notu (Opsiyonel)</label>
+                    <input type="text" id="note" placeholder="Örn: Boş damacana verilecek" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                </div>
+
+                <!-- Gönder Butonu -->
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>SİPARİŞİ GÖNDER</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Son Sipariş Durumu Kartı -->
+        <div id="statusCard" class="hidden bg-white rounded-2xl shadow-md p-4 border-l-4 border-amber-500">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Son Sipariş Durumu</h3>
+            <div class="flex justify-between items-center">
+                <div>
+                    <p id="statusText" class="text-sm font-bold text-gray-800">Bekliyor...</p>
+                    <p id="statusTime" class="text-[11px] text-gray-400"></p>
+                </div>
+                <span id="statusBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Bekliyor</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Alt Bilgi -->
+    <footer class="text-center py-4 text-xs text-gray-400">
+        Mavizade Su Dağıtım Sistemi &copy; 2026
+    </footer>
+
+    <!-- Scriptler ve Kurulum Mantığı -->
+    <script>
+        // --- 1. TELEFONA YÜKLEME (PWA) MANTIĞI ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden'); // Yükle butonunu göster
+
+            installBtn.addEventListener('click', () => {
+                installBtn.classList.add('hidden');
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Kullanıcı uygulamayı ana ekrana ekledi');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        // --- 2. HAFIZA VE SİPARİŞ MANTIĞI ---
+        const phoneInput = document.getElementById('phone');
+        const nameInput = document.getElementById('name');
+        const addressInput = document.getElementById('address');
+        const orderForm = document.getElementById('orderForm');
+        const statusCard = document.getElementById('statusCard');
+        const statusText = document.getElementById('statusText');
+        const statusBadge = document.getElementById('statusBadge');
+        const statusTime = document.getElementById('statusTime');
+
+        // Telefon numarası girilince hafızadan getir
+        phoneInput.addEventListener('input', (e) => {
+            let phoneVal = e.target.value.trim();
+            if (phoneVal.length >= 10) {
+                let savedData = localStorage.getItem('mavizade_user_' + phoneVal);
+                if (savedData) {
+                    let user = JSON.parse(savedData);
+                    nameInput.value = user.name || '';
+                    addressInput.value = user.address || '';
+                }
+            }
+        });
+
+        // Sipariş gönderme
+        orderForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let phone = phoneInput.value.trim();
+            let name = nameInput.value.trim();
+            let address = addressInput.value.trim();
+            let product = document.getElementById('product').value;
+            let quantity = document.getElementById('quantity').value;
+            let note = document.getElementById('note').value;
+
+            // Bilgileri hafızaya kaydet
+            let userData = { name, address };
+            localStorage.setItem('mavizade_user_' + phone, JSON.stringify(userData));
+
+            // Sipariş objesi
+            let order = {
+                id: 'SIP-' + Math.floor(1000 + Math.random() * 9000),
+                phone,
+                name,
+                address,
+                product: `${quantity} Adet ${product}`,
+                note,
+                status: 'Bekliyor',
+                time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            // Geçmiş siparişler
+            let orders = JSON.parse(localStorage.getItem('mavizade_orders') || '[]');
+            orders.unshift(order);
+            localStorage.setItem('mavizade_orders', JSON.stringify(orders));
+
+            // Durum kartını göster
+            statusCard.classList.remove('hidden');
+            statusText.innerText = `${order.product} - Alındı, onay bekleniyor.`;
+            statusBadge.innerText = 'Bekliyor';
+            statusBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
+            statusTime.innerText = order.time;
+
+            alert('Siparişiniz başarıyla alındı kanka! Dağıtım ekibine iletiliyor.');
+            orderForm.reset();
+        });
+    </script>
+</body>
+</html>
