@@ -3,38 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mavizade Su - Sipariş Ver</title>
+    <title>Mavizade Su - Hızlı Sipariş</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PWA Kurulum için Manifest Ayarı -->
-    <link rel="manifest" href="data:application/json;charset=utf-8,{
+    <!-- PWA Manifest (Uygulama Kimliği) -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
         %22name%22: %22Mavizade Su Sipariş%22,
         %22short_name%22: %22Mavizade%22,
-        %22start_url%22: %22.%22,
+        %22start_url%22: %22./index.html%22,
         %22display%22: %22standalone%22,
         %22background_color%22: %22%23eff6ff%22,
         %22theme_color%22: %22%232563eb%22,
-        %22icons%22: [{
-            %22src%22: %22https://cdn-icons-png.flaticon.com/512/3105/3105807.png%22,
-            %22sizes%22: %22512x512%22,
-            %22type%22: %22image/png%22
-        }]
+        %22icons%22: [
+            {
+                %22src%22: %22https://cdn-icons-png.flaticon.com/512/3105/3105807.png%22,
+                %22sizes%22: %22192x192%22,
+                %22type%22: %22image/png%22
+            },
+            {
+                %22src%22: %22https://cdn-icons-png.flaticon.com/512/3105/3105807.png%22,
+                %22sizes%22: %22512x512%22,
+                %22type%22: %22image/png%22
+            }
+        ]
     }">
     <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mavizade Su">
 </head>
 <body class="bg-blue-50 min-h-screen flex flex-col justify-between">
 
     <!-- Üst Başlık -->
     <header class="bg-blue-600 text-white p-4 shadow-md text-center relative">
         <h1 class="text-xl font-bold"><i class="fa-solid fa-droplet mr-2"></i>Mavizade Su</h1>
-        <p class="text-xs text-blue-100">Hızlı ve Güvenilir Damacana & Su Siparişi</p>
+        <p class="text-xs text-blue-100">Uğurmumcu / Kartal Eve Teslimat</p>
         
-        <!-- Telefona Yükle Butonu (Başlangıçta gizli, tarayıcı destekleyince açılır) -->
-        <button id="installBtn" class="hidden absolute right-3 top-4 bg-white text-blue-600 text-xs font-bold px-2.5 py-1.5 rounded-lg shadow flex items-center space-x-1">
+        <!-- Yükle / Ana Ekrana Ekle Butonu -->
+        <button id="installBtn" class="hidden absolute right-3 top-3.5 bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center space-x-1 active:scale-95 transition">
             <i class="fa-solid fa-download"></i>
-            <span>Yükle</span>
+            <span>Uygulamayı İndir</span>
         </button>
     </header>
 
@@ -43,7 +53,10 @@
         
         <!-- Sipariş Formu Kartı -->
         <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Hemen Sipariş Ver</h2>
+            <h2 class="text-base font-bold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
+                <span>Damacana & Su Siparişi</span>
+                <i class="fa-solid fa-truck-fast text-blue-600"></i>
+            </h2>
             
             <form id="orderForm" class="space-y-4">
                 <!-- Telefon Numarası -->
@@ -52,9 +65,9 @@
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-phone"></i></span>
                         <input type="tel" id="phone" required placeholder="0532 XXX XX XX" 
-                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                     </div>
-                    <p class="text-[10px] text-blue-600 mt-1">Numaranızı yazdığınızda daha önceki bilgileriniz otomatik gelir.</p>
+                    <p class="text-[10px] text-blue-600 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Numaranızı girince adresiniz otomatik hatırlanır.</p>
                 </div>
 
                 <!-- Ad Soyad -->
@@ -63,25 +76,25 @@
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-user"></i></span>
                         <input type="text" id="name" required placeholder="Adınız Soyadınız" 
-                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                     </div>
                 </div>
 
                 <!-- Adres -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Teslimat Adresi (Uğurmumcu / Kartal vb.)</label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Teslimat Adresi</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fa-solid fa-location-dot"></i></span>
-                        <textarea id="address" required rows="2" placeholder="Mahalle, Cadde, Sokak, Bina No, Daire..." 
-                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"></textarea>
+                        <span class="absolute inset-y-0 left-0 pl-3 pt-2.5 text-gray-400"><i class="fa-solid fa-location-dot"></i></span>
+                        <textarea id="address" required rows="2" placeholder="Mahalle, Sokak, Bina No, Daire..." 
+                            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50"></textarea>
                     </div>
                 </div>
 
-                <!-- Ürün Seçimi -->
+                <!-- Ürün Seçimi ve Adet -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Ürün</label>
-                        <select id="product" class="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                        <select id="product" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                             <option value="19L Damacana Su">19L Damacana</option>
                             <option value="5L Su">5L Pet Su</option>
                             <option value="1.5L / Koli Su">1.5L Koli Su</option>
@@ -90,19 +103,19 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Adet</label>
                         <input type="number" id="quantity" value="1" min="1" max="10" 
-                            class="w-full p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-center">
+                            class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm text-center bg-gray-50 font-bold">
                     </div>
                 </div>
 
                 <!-- Sipariş Notu -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Sipariş Notu (Opsiyonel)</label>
-                    <input type="text" id="note" placeholder="Örn: Boş damacana verilecek" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+                    <input type="text" id="note" placeholder="Örn: Boş damacana verilecek, zili çalmayın" 
+                        class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                 </div>
 
                 <!-- Gönder Butonu -->
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>SİPARİŞİ GÖNDER</span>
                 </button>
@@ -125,33 +138,34 @@
 
     <!-- Alt Bilgi -->
     <footer class="text-center py-4 text-xs text-gray-400">
-        Mavizade Su Dağıtım Sistemi &copy; 2026
+        Mavizade Su Dağıtım &copy; 2026
     </footer>
 
-    <!-- Scriptler ve Kurulum Mantığı -->
+    <!-- Kod ve PWA Yükleme Mantığı -->
     <script>
-        // --- 1. TELEFONA YÜKLEME (PWA) MANTIĞI ---
+        // --- 1. TELEFONA UYGULAMA OLARAK KURMA (PWA PROMPT) ---
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden'); // Yükle butonunu göster
+            installBtn.classList.remove('hidden'); // Yükle butonunu görünür yap
 
-            installBtn.addEventListener('click', () => {
+            installBtn.addEventListener('click', async () => {
                 installBtn.classList.add('hidden');
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Kullanıcı uygulamayı ana ekrana ekledi');
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('Kullanıcı uygulamayı yükledi');
                     }
                     deferredPrompt = null;
-                });
+                }
             });
         });
 
-        // --- 2. HAFIZA VE SİPARİŞ MANTIĞI ---
+        // --- 2. HAFIZA VE SİPARİŞ İŞLEMLERİ ---
         const phoneInput = document.getElementById('phone');
         const nameInput = document.getElementById('name');
         const addressInput = document.getElementById('address');
@@ -161,7 +175,7 @@
         const statusBadge = document.getElementById('statusBadge');
         const statusTime = document.getElementById('statusTime');
 
-        // Telefon numarası girilince hafızadan getir
+        // Telefon numarası girilince eski bilgileri otomatik getir
         phoneInput.addEventListener('input', (e) => {
             let phoneVal = e.target.value.trim();
             if (phoneVal.length >= 10) {
@@ -174,7 +188,7 @@
             }
         });
 
-        // Sipariş gönderme
+        // Sipariş gönderme tetikleyicisi
         orderForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -185,11 +199,11 @@
             let quantity = document.getElementById('quantity').value;
             let note = document.getElementById('note').value;
 
-            // Bilgileri hafızaya kaydet
+            // Kullanıcı bilgilerini bu telefon numarasıyla hafızaya kaydet
             let userData = { name, address };
             localStorage.setItem('mavizade_user_' + phone, JSON.stringify(userData));
 
-            // Sipariş objesi
+            // Sipariş paketi oluştur
             let order = {
                 id: 'SIP-' + Math.floor(1000 + Math.random() * 9000),
                 phone,
@@ -201,12 +215,12 @@
                 time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
             };
 
-            // Geçmiş siparişler
+            // Geçmiş siparişlere ekle
             let orders = JSON.parse(localStorage.getItem('mavizade_orders') || '[]');
             orders.unshift(order);
             localStorage.setItem('mavizade_orders', JSON.stringify(orders));
 
-            // Durum kartını göster
+            // Ekranda durum kartını göster
             statusCard.classList.remove('hidden');
             statusText.innerText = `${order.product} - Alındı, onay bekleniyor.`;
             statusBadge.innerText = 'Bekliyor';
