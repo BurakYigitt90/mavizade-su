@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mavizade Su - Hızlı Sipariş</title>
+    <title>Mavizade Su - Online Sipariş</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PWA Manifest (Uygulama Kimliği) -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
         %22name%22: %22Mavizade Su Sipariş%22,
         %22short_name%22: %22Mavizade%22,
@@ -39,9 +39,9 @@
     <!-- Üst Başlık -->
     <header class="bg-blue-600 text-white p-4 shadow-md text-center relative">
         <h1 class="text-xl font-bold"><i class="fa-solid fa-droplet mr-2"></i>Mavizade Su</h1>
-        <p class="text-xs text-blue-100">Uğurmumcu / Kartal Eve Teslimat</p>
+        <p class="text-xs text-blue-100">Uğurmumcu / Kartal Su Dağıtım Hizmetleri</p>
         
-        <!-- Yükle / Ana Ekrana Ekle Butonu -->
+        <!-- PWA Yükle Butonu -->
         <button id="installBtn" class="hidden absolute right-3 top-3.5 bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center space-x-1 active:scale-95 transition">
             <i class="fa-solid fa-download"></i>
             <span>Uygulamayı İndir</span>
@@ -54,7 +54,7 @@
         <!-- Sipariş Formu Kartı -->
         <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
             <h2 class="text-base font-bold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
-                <span>Damacana & Su Siparişi</span>
+                <span>Hızlı Su Siparişi</span>
                 <i class="fa-solid fa-truck-fast text-blue-600"></i>
             </h2>
             
@@ -67,7 +67,7 @@
                         <input type="tel" id="phone" required placeholder="0532 XXX XX XX" 
                             class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                     </div>
-                    <p class="text-[10px] text-blue-600 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Numaranızı girince adresiniz otomatik hatırlanır.</p>
+                    <p class="text-[10px] text-blue-600 mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Numaranızı girdiğinizde kayıtlı adresiniz otomatik olarak getirilir.</p>
                 </div>
 
                 <!-- Ad Soyad -->
@@ -90,14 +90,17 @@
                     </div>
                 </div>
 
-                <!-- Ürün Seçimi ve Adet -->
+                <!-- Ürün Seçimi ve Adet (İleride yeni ürünler buraya kolayca eklenebilir) -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Ürün</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Ürün Seçimi</label>
                         <select id="product" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
-                            <option value="19L Damacana Su">19L Damacana</option>
-                            <option value="5L Su">5L Pet Su</option>
+                            <option value="19L Damacana Su">19L Damacana Su</option>
+                            <option value="5L Pet Su">5L Pet Su</option>
                             <option value="1.5L / Koli Su">1.5L Koli Su</option>
+                            <!-- İleride eklenebilecek örnek ürünler için yer tutucu:
+                            <option value="0.5L / Koli Bardak Su">0.5L Koli Su</option> 
+                            -->
                         </select>
                     </div>
                     <div>
@@ -110,27 +113,27 @@
                 <!-- Sipariş Notu -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Sipariş Notu (Opsiyonel)</label>
-                    <input type="text" id="note" placeholder="Örn: Boş damacana verilecek, zili çalmayın" 
+                    <input type="text" id="note" placeholder="Örn: Boş damacana verilecektir." 
                         class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-gray-50">
                 </div>
 
                 <!-- Gönder Butonu -->
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
                     <i class="fa-solid fa-paper-plane"></i>
-                    <span>SİPARİŞİ GÖNDER</span>
+                    <span>SİPARİŞİ ONAYLA VE GÖNDER</span>
                 </button>
             </form>
         </div>
 
         <!-- Son Sipariş Durumu Kartı -->
-        <div id="statusCard" class="hidden bg-white rounded-2xl shadow-md p-4 border-l-4 border-amber-500">
-            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Son Sipariş Durumu</h3>
+        <div id="statusCard" class="hidden bg-white rounded-2xl shadow-md p-4 border-l-4 border-blue-500">
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Sipariş Durum Takibi</h3>
             <div class="flex justify-between items-center">
                 <div>
-                    <p id="statusText" class="text-sm font-bold text-gray-800">Bekliyor...</p>
+                    <p id="statusText" class="text-sm font-bold text-gray-800">İşleniyor...</p>
                     <p id="statusTime" class="text-[11px] text-gray-400"></p>
                 </div>
-                <span id="statusBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Bekliyor</span>
+                <span id="statusBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Bekliyor</span>
             </div>
         </div>
 
@@ -138,19 +141,19 @@
 
     <!-- Alt Bilgi -->
     <footer class="text-center py-4 text-xs text-gray-400">
-        Mavizade Su Dağıtım &copy; 2026
+        Mavizade Su Dağıtım Hizmetleri &copy; 2026
     </footer>
 
-    <!-- Kod ve PWA Yükleme Mantığı -->
+    <!-- Kod ve PWA Mantığı -->
     <script>
-        // --- 1. TELEFONA UYGULAMA OLARAK KURMA (PWA PROMPT) ---
+        // PWA Yükleme Kurulumu
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden'); // Yükle butonunu görünür yap
+            installBtn.classList.remove('hidden');
 
             installBtn.addEventListener('click', async () => {
                 installBtn.classList.add('hidden');
@@ -158,14 +161,13 @@
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
                     if (outcome === 'accepted') {
-                        console.log('Kullanıcı uygulamayı yükledi');
+                        console.log('Müşteri uygulaması yüklendi');
                     }
                     deferredPrompt = null;
                 }
             });
         });
 
-        // --- 2. HAFIZA VE SİPARİŞ İŞLEMLERİ ---
         const phoneInput = document.getElementById('phone');
         const nameInput = document.getElementById('name');
         const addressInput = document.getElementById('address');
@@ -175,7 +177,7 @@
         const statusBadge = document.getElementById('statusBadge');
         const statusTime = document.getElementById('statusTime');
 
-        // Telefon numarası girilince eski bilgileri otomatik getir
+        // Telefon numarasına göre eski kayıtları getirme
         phoneInput.addEventListener('input', (e) => {
             let phoneVal = e.target.value.trim();
             if (phoneVal.length >= 10) {
@@ -188,7 +190,7 @@
             }
         });
 
-        // Sipariş gönderme tetikleyicisi
+        // Sipariş Gönderimi
         orderForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -196,16 +198,16 @@
             let name = nameInput.value.trim();
             let address = addressInput.value.trim();
             let product = document.getElementById('product').value;
-            let quantity = document.getElementById('quantity').value;
+            let quantity = document.getElementById('quantity'].value;
             let note = document.getElementById('note').value;
 
-            // Kullanıcı bilgilerini bu telefon numarasıyla hafızaya kaydet
+            // Kullanıcı bilgilerini hafızada sakla
             let userData = { name, address };
             localStorage.setItem('mavizade_user_' + phone, JSON.stringify(userData));
 
             // Sipariş paketi oluştur
             let order = {
-                id: 'SIP-' + Math.floor(1000 + Math.random() * 9000),
+                id: 'MS-' + Math.floor(1000 + Math.random() * 9000),
                 phone,
                 name,
                 address,
@@ -215,19 +217,19 @@
                 time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
             };
 
-            // Geçmiş siparişlere ekle
+            // Siparişleri localStorage'a kaydet
             let orders = JSON.parse(localStorage.getItem('mavizade_orders') || '[]');
             orders.unshift(order);
             localStorage.setItem('mavizade_orders', JSON.stringify(orders));
 
-            // Ekranda durum kartını göster
+            // Durum kartını güncelle (Profesyonel dilde)
             statusCard.classList.remove('hidden');
-            statusText.innerText = `${order.product} - Alındı, onay bekleniyor.`;
-            statusBadge.innerText = 'Bekliyor';
-            statusBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
+            statusText.innerText = `${order.product} - Siparişiniz alınmıştır.`;
+            statusBadge.innerText = 'İşlemde';
+            statusBadge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700';
             statusTime.innerText = order.time;
 
-            alert('Siparişiniz başarıyla alındı kanka! Dağıtım ekibine iletiliyor.');
+            alert('Siparişiniz başarıyla alınmıştır. Dağıtım birimimize iletildi.');
             orderForm.reset();
         });
     </script>
