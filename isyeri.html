@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mavizade Su - İş Yeri Paneli</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Kurulum Kimliği (isyeri.html için ayarlandı) -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,{
+        %22name%22: %22Mavizade İş Yeri Paneli%22,
+        %22short_name%22: %22Mavizade Panel%22,
+        %22start_url%22: %22./isyeri.html%22,
+        %22display%22: %22standalone%22,
+        %22background_color%22: %22%230f172a%22,
+        %22theme_color%22: %22%230f172a%22,
+        %22icons%22: [{
+            %22src%22: %22https://cdn-icons-png.flaticon.com/512/3105/3105807.png%22,
+            %22sizes%22: %22512x512%22,
+            %22type%22: %22image/png%22
+        }]
+    }">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Üst Başlık -->
+    <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center relative">
+        <div>
+            <h1 class="text-base font-bold"><i class="fa-solid fa-store mr-2 text-blue-400"></i>Mavizade Operasyon</h1>
+            <p class="text-[10px] text-gray-400">Uğurmumcu / Kartal Dağıtım</p>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <!-- Telefona İndir Butonu -->
+            <button id="installBtn" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-2.5 py-2 rounded-xl shadow flex items-center space-x-1">
+                <i class="fa-solid fa-download"></i>
+                <span>İndir</span>
+            </button>
+            <!-- Yenile Butonu -->
+            <button onclick="loadOrders()" class="bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs px-3 py-2 rounded-xl transition">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Ana İçerik -->
+    <main class="p-4 max-w-lg mx-auto w-full flex-grow">
+        
+        <!-- Özet Sayaçlar -->
+        <div class="grid grid-cols-3 gap-2.5 mb-4">
+            <div class="bg-white p-3 rounded-2xl shadow-sm text-center border-t-4 border-amber-500">
+                <p class="text-[10px] text-gray-400 uppercase font-bold">Bekleyen</p>
+                <p id="countPending" class="text-lg font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl shadow-sm text-center border-t-4 border-blue-500">
+                <p class="text-[10px] text-gray-400 uppercase font-bold">Yolda</p>
+                <p id="countOnTheWay" class="text-lg font-bold text-gray-800">0</p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl shadow-sm text-center border-t-4 border-emerald-500">
+                <p class="text-[10px] text-gray-400 uppercase font-bold">Tamamlanan</p>
+                <p id="countCompleted" class="text-lg font-bold text-gray-800">0</p>
+            </div>
+        </div>
+
+        <!-- Siparişler Listesi -->
+        <div id="ordersContainer" class="space-y-3">
+            <div class="bg-white p-6 rounded-2xl shadow-sm text-center text-gray-400">
+                <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+                <p class="text-sm">Henüz gelen aktif sipariş yok.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Alt Bilgi -->
+    <footer class="text-center py-4 text-xs text-gray-400">
+        Mavizade Su Yönetim Sistemi &copy; 2026
+    </footer>
+
+    <!-- Ses Efekti ve Sistem Mantığı -->
+    <script>
+        function playBeep() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {
+                console.log("Ses çalınamadı", e);
+            }
+        }
+
+        // --- PWA İNDİRME MANTIĞI ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+
+            installBtn.addEventListener('click', async () => {
+                installBtn.classList.add('hidden');
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('İş yeri paneli telefona kuruldu');
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        });
+
+        // --- SİPARİŞ YÖNETİMİ VE SESLİ UYARI ---
+        let lastOrderCount = -1;
+
+        function loadOrders() {
+            const container = document.getElementById('ordersContainer');
+            let orders = JSON.parse(localStorage.getItem('mavizade_orders') || '[]');
+
+            if (lastOrderCount !== -1 && orders.length > lastOrderCount) {
+                playBeep();
+            }
+            lastOrderCount = orders.length;
+
+            let countPending = 0;
+            let countOnTheWay = 0;
+            let countCompleted = 0;
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm text-center text-gray-400">
+                        <i class="fa-solid fa-box-open text-3xl mb-2"></i>
+                        <p class="text-sm">Henüz gelen aktif sipariş yok.</p>
+                    </div>`;
+                document.getElementById('countPending').innerText = 0;
+                document.getElementById('countOnTheWay').innerText = 0;
+                document.getElementById('countCompleted').innerText = 0;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            orders.forEach((order, index) => {
+                if (order.status === 'Bekliyor') countPending++;
+                else if (order.status === 'Yolda') countOnTheWay++;
+                else if (order.status === 'Teslim Edildi') countCompleted++;
+
+                let badgeColor = 'bg-amber-100 text-amber-700 border-amber-300';
+                if (order.status === 'Yolda') badgeColor = 'bg-blue-100 text-blue-700 border-blue-300';
+                if (order.status === 'Teslim Edildi') badgeColor = 'bg-emerald-100 text-emerald-700 border-emerald-300';
+
+                let cardHtml = `
+                    <div class="bg-white rounded-2xl shadow-sm p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-2 border-b pb-2">
+                            <div>
+                                <span class="text-xs font-bold text-gray-400">${order.id}</span>
+                                <h3 class="text-sm font-bold text-gray-800">${order.name}</h3>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeColor}">${order.status}</span>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs text-gray-600 mb-3">
+                            <p class="font-bold text-blue-600 text-sm"><i class="fa-solid fa-droplet mr-1.5"></i>${order.product}</p>
+                            <p><i class="fa-solid fa-location-dot mr-1.5 text-gray-400"></i><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address)}" target="_blank" class="text-blue-600 underline font-medium">${order.address} (Haritada Aç)</a></p>
+                            <p><i class="fa-solid fa-phone mr-1.5 text-gray-400"></i><a href="tel:${order.phone}" class="font-bold text-gray-800 underline">${order.phone}</a></p>
+                            ${order.note ? `<p class="italic text-gray-500 bg-gray-50 p-1.5 rounded-lg"><i class="fa-solid fa-note-sticky mr-1"></i>Not: ${order.note}</p>` : ''}
+                            <p class="text-[10px] text-gray-400 text-right"><i class="fa-regular fa-clock mr-1"></i>${order.time}</p>
+                        </div>
+
+                        <!-- Durum Değiştirme Butonları -->
+                        <div class="grid grid-cols-3 gap-1.5 pt-2 border-t">
+                            <button onclick="updateStatus(${index}, 'Bekliyor')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold py-1.5 rounded-lg text-[11px] transition">Bekliyor</button>
+                            <button onclick="updateStatus(${index}, 'Yolda')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-1.5 rounded-lg text-[11px] transition">Yola Çıkar</button>
+                            <button onclick="updateStatus(${index}, 'Teslim Edildi')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-1.5 rounded-lg text-[11px] transition">Teslim Et</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            document.getElementById('countPending').innerText = countPending;
+            document.getElementById('countOnTheWay').innerText = countOnTheWay;
+            document.getElementById('countCompleted').innerText = countCompleted;
+        }
+
+        function updateStatus(index, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('mavizade_orders') || '[]');
+            if (orders[index]) {
+                orders[index].status = newStatus;
+                localStorage.setItem('mavizade_orders', JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+
+        loadOrders();
+        setInterval(loadOrders, 3000);
+    </script>
+</body>
+</html>
